@@ -26,6 +26,3 @@ git commit -m "$COMMIT_MSG"
 git push
 
 echo "🎉 成功推送到 GitHub 備份完成！"
-EOF
-
-chmod +x /home/hugochang/n8n-workspace/git-auto-sync.sh
