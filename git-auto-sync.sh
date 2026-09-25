@@ -33,6 +33,3 @@ git commit -m "$COMMIT_MSG"
 git push
 
 echo "🎉 同步完成！"
-EOF
-
-chmod +x /home/hugochang/n8n-workspace/git-auto-sync.sh
