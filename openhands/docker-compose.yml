@@ -1,0 +1,15 @@
+services:
+  openhands:
+    image: ghcr.io/all-hands-ai/openhands:0.14
+    container_name: openhands
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - SANDBOX_RUNTIME_CONTAINER_IMAGE=ghcr.io/all-hands-ai/runtime:0.14-nikolaik
+      - LOG_ALL_EVENTS=true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ~/.openhands-state:/.openhands-state
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
