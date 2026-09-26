@@ -1,32 +1,92 @@
-# n8n Automation Workspace & Server Setup
+# n8n Automation Workspace
 
-本專案記錄了在 Ubuntu 伺服器上，從零建置 Docker 環境、Portainer 網頁管理介面，到透過 Docker Compose 部署 n8n 自動化工作流的完整架構與設定檔。
+Production-ready Docker environment for n8n automation workflows, managed with Portainer and backed up via automated Git synchronization.
 
----
+## System Architecture
 
-## 🛠️ 伺服器基礎環境建置 (Infrastructure)
-
-- **Docker 核心引擎**：運行容器化服務
-- **Portainer 網頁管理介面**：`https://<YOUR_SERVER_IP>:9443`
-- **n8n 自動化平台**：`http://<YOUR_SERVER_IP>:5678`
-
----
-
-## 🔄 自動化工作流目錄 (Workflows Index)
-
-本專案所有的自動化工作流皆已導出並透過 Git 進行版本控制，包含以下模組：
-
-| 工作流名稱 | 分類 | JSON 檔案連結 | 功能說明 |
+| Component | Port | Access URL | Description |
 | :--- | :--- | :--- | :--- |
-| **伺服器健康度與硬碟預警器** | 系統維護 (`system`) | [server-sentinel.json](./workflows/system/server-sentinel.json) | 定期監控 CPU、RAM 與硬碟，異常時發送告警 |
-| **量化交易學習小卡** | 服務串接 (`integrations`) | [trading-learning-card.json](./workflows/integrations/trading-learning-card.json) | 定期推播與處理量化交易知識小卡內容 |
+| **n8n** | `5678` | `http://<SERVER_IP>:5678` | Workflow automation engine |
+| **Portainer** | `9443` | `https://<SERVER_IP>:9443` | Web-based container management UI |
 
-### 📥 如何將 Workflows 匯入到新的 n8n 實例：
-1. 登入 n8n 儀表板，點選 **Workflows** -> **Add Workflow**。
-2. 點擊右上角 `...` 選單 -> 選擇 **Import from JSON**。
-3. 選擇 `workflows/` 對應目錄下的 `.json` 檔案即可完成還原。
+## Directory Layout
 
----
+```text
+n8n-workspace/
+├── docker-compose.yml       # Docker service specification
+├── git-auto-sync.sh        # Cron script for automated workflow export & backup
+├── .env.example             # Template for required environment variables
+├── .gitignore               # Excludes secrets, logs, and sensitive data
+└── workflows/
+    ├── system/              # Infrastructure and server monitoring
+    └── integrations/        # External API and third-party integrations
+```
 
-## 🔐 安全性規範
-- 敏感參數（如 API Key、Token）皆統一存放於 `.env`，已於 `.gitignore` 中排除，公開儲存庫僅保留 `.env.example` 範本與已去除敏感憑證的 JSON 工作流。
+## Workflows Index
+
+| Workflow | Category | File | Description |
+| :--- | :--- | :--- | :--- |
+| Server Sentinel | system | server-sentinel.json | Monitors CPU, RAM, and disk utilization; dispatches alert notifications upon threshold breach |
+| Trading Card Service | integrations | trading-learning-card.json | Processes and broadcasts quantitative trading learning cards via automated scheduled triggers |
+
+## Deployment & Setup
+
+### 1. Infrastructure Initialization
+Install the Docker engine and deploy Portainer on Ubuntu:
+
+```bash
+# Install Docker
+sudo apt update && sudo apt install -y docker.io
+sudo systemctl enable --now docker
+sudo usermod -aG docker $USER
+
+# Deploy Portainer UI
+sudo docker volume create portainer_data
+sudo docker run -d \
+  -p 8000:8000 \
+  -p 9443:9443 \
+  --name portainer \
+  --restart=always \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v portainer_data:/data \
+  portainer/portainer-ce:latest
+```
+
+### 2. Launching n8n
+
+```bash
+# Clone repository and configure environment variables
+git clone https://github.com/<YOUR_USERNAME>/n8n-workspace.git
+cd n8n-workspace
+cp .env.example .env
+
+# Edit .env with your specific host domains and secrets
+nano .env
+
+# Start service container
+sudo docker compose up -d
+```
+
+### 3. Importing Workflows
+1. Open the n8n dashboard (`http://<SERVER_IP>:5678`).
+2. Go to **Workflows** → **Add Workflow**.
+3. Click the `...` menu in the top-right corner → Select **Import from JSON**.
+4. Choose the target `.json` file from the `workflows/` directory.
+
+## Automated Backup Sync
+The included `git-auto-sync.sh` script exports active workflows directly from the n8n container and commits updated JSON files to GitHub.
+
+Make the script executable:
+```bash
+chmod +x git-auto-sync.sh
+```
+
+Execute manual sync:
+```bash
+./git-auto-sync.sh "chore: backup updated workflows"
+```
+
+## Security & Environment Variable Decoupling
+
+- **Secret Isolation**: Sensitive credentials (API tokens, database credentials, webhook URLs) are stored exclusively in `.env` and excluded from source control via `.gitignore`.
+- **Sanitized Workflows**: Exported JSON files in `workflows/` contain workflow structures and logic while stripping out active authentication tokens.
