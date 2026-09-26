@@ -90,3 +90,4 @@ Execute manual sync:
 
 - **Secret Isolation**: Sensitive credentials (API tokens, database credentials, webhook URLs) are stored exclusively in `.env` and excluded from source control via `.gitignore`.
 - **Sanitized Workflows**: Exported JSON files in `workflows/` contain workflow structures and logic while stripping out active authentication tokens.
+# Update workspace files
