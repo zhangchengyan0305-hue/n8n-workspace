@@ -26,8 +26,8 @@ n8n-workspace/
 
 | Workflow | Category | File | Description |
 | :--- | :--- | :--- | :--- |
-| Server Sentinel | system | server-sentinel.json | Monitors CPU, RAM, and disk utilization; dispatches alert notifications upon threshold breach |
-| Trading Card Service | integrations | trading-learning-card.json | Processes and broadcasts quantitative trading learning cards via automated scheduled triggers |
+| Server Sentinel | system | [server-sentinel.json](workflows/system/server-sentinel.json) | Monitors CPU, RAM, and disk utilization; dispatches alert notifications upon threshold breach |
+| Trading Card Service | integrations | [trading-learning-card.json](workflows/integrations/trading-learning-card.json) | Processes and broadcasts quantitative trading learning cards via automated scheduled triggers |
 
 ## Deployment & Setup
 
